@@ -217,7 +217,18 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 	*/
 	int ray = 0;
 	for (ray; ray < 7; ray++){
-		
+		char file_name[30];
+		sprintf(file_name,"file%i",ray);
+		FILE *file = fopen(file_name,"w");
+		fprintf(file, "ROOM NAME: %s\n", ROOM_NAMES[roomfile_arr[ray]->name]);
+		int rye = 0;
+		for (rye; rye < roomfile_arr[ray]->num_connections; rye++){
+			fprintf(file, "CONNECTION %i: %s\n", rye, ROOM_NAMES[roomfile_arr[roomfile_arr[ray]->connections[rye]]->name]);
+		}
+		fprintf(file, "ROOM TYPE: %s\n", roomfile_arr[ray]->room_type);
+
+		fclose(file);
 	}
+
 	exit(0);
 }
