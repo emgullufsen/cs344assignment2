@@ -288,6 +288,7 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 	}
 
 	//play the game!!!
+	// finally
 	int moves = 0;
 	displayinfo(therooms[0]);
 	struct room *activeroom = therooms[0];
