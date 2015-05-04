@@ -267,7 +267,7 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 		fprintf(file, "ROOM NAME: %s\n", ROOM_NAMES[roomfile_arr[ray]->name]);
 		int rye = 0;
 		for (rye; rye < roomfile_arr[ray]->num_connections; rye++){
-			fprintf(file, "%s %i: %s\n", CON, rye, ROOM_NAMES[roomfile_arr[roomfile_arr[ray]->connections[rye]]->name]);
+			fprintf(file, "%s %i: %s\n", CON, (rye+1), ROOM_NAMES[roomfile_arr[roomfile_arr[ray]->connections[rye]]->name]);
 		}
 		fprintf(file, "ROOM TYPE: %s\n", roomfile_arr[ray]->room_type);
 
@@ -293,6 +293,7 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 	struct room *activeroom = therooms[0];
 	struct path *pathy = (struct path *)malloc(sizeof(struct path));
 	pathy->pathlength = 0;
+	savepath(activeroom, pathy);
 	char mo[40];
 	while (pathy->pathlength < 100){
 		fgets(mo, 40, stdin);
