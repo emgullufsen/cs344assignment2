@@ -20,7 +20,13 @@ const char *MID = "MID_ROOM";
 const char *END = "END_ROOM";
 
 // room names
-const char *ROOM_NAMES[10] = {"Tsar Peter's Docha","King Henry's Oubliette","Stalin's SMERSH Interrogation Room","Bonaparte's Foyer","Tutankhamun's Crypt","T. Roosevelt's Rifle Range","Truman's Bomb Bay","Churchill's Brandy Basement","Agamemnon's Beach Tent", "Nero's Wine Cellar"};
+const char *ROOM_NAMES[10] = {"Docha","Oubliette","Interrogation Room","Foyer","Crypt","Rifle Range","Bomb Bay","Basement","Beach Tent", "Wine Cellar"};
+
+const char *CON = "CONNECTION";
+
+const char *RN = "ROOM NAME";
+
+const char *RT = "ROOM TYPE";
 
 struct roomfile
 {
@@ -71,6 +77,77 @@ int is_used(struct room_indices *roomy, int index){
 		}
 	}
 	return 0;
+}
+
+struct room{
+	char name[40];
+	char connections_s[6][40];
+	char room_ty[40];
+	int number;
+};
+
+int readinto(struct room *theroom, FILE * thefile){
+	char st[40];
+	while(fgets(st,40,thefile) != NULL){
+		if (strstr(st,RN)){
+			strcpy(theroom->name, st+11);
+			theroom->name[strlen(theroom->name) - 1] = '\0';
+		}
+		if (strstr(st,RT)){
+			strcpy(theroom->room_ty, st+11);
+			theroom->room_ty[strlen(theroom->room_ty) -1] = '\0';
+		}
+		if (strstr(st,CON)){
+			strcpy(theroom->connections_s[theroom->number], st+14);
+			theroom->connections_s[theroom->number][(int)strlen(theroom->connections_s[theroom->number]) - 1] = '\0';
+			theroom->number++;
+
+		}
+	}
+}
+
+int is_possible_connection(char *inp, struct room *theroom){
+
+	int g = 0;
+	for (g; g < theroom->number; g++){
+		if (strcmp(inp, theroom->connections_s[g]) == 0)
+			return 1;
+	}
+	return 0;
+
+}
+
+struct path{
+	int pathlength;
+	char patharray[100][40];
+};
+
+//display the formattet interface
+int displayinfo(struct room *theroom){
+
+	printf("CURRENT LOCATION: %s\n", theroom->name);
+	printf("POSSIBLE CONNECTIONS: ");
+	int p = 0;
+	for (p; p < theroom->number; p++){
+		if (p != (theroom->number - 1))
+			printf("%s, ", theroom->connections_s[p]);
+		else
+			printf("%s.\n", theroom->connections_s[p]);
+	}
+	printf("WHERE TO? >");
+}
+
+int savepath(struct room *theroom, struct path *thepath){
+	strcpy(thepath->patharray[thepath->pathlength],theroom->name);
+	thepath->pathlength++;
+}
+
+int displayresults(struct path *thepath){
+	printf("YOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\nYOU TOOK %i STEPS. YOUR PATH TO VICTORY WAS:\n", thepath->pathlength);
+	int u = 0;
+	for (u; u < thepath->pathlength; u++){
+		printf("%s\n", thepath->patharray[u]);
+	} 
 }
 
 int main(int argc, char *argv[]){
@@ -208,7 +285,7 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 		int loop = roomfile_arr[lay]->num_connections;
 		int boop = 0;
 		for (boop; boop < loop; boop++){
-			printf("connection: %s\n", ROOM_NAMES[roomfile_arr[roomfile_arr[lay]->connections[boop]]->name]);
+			printf("%s: %s\n",CON, ROOM_NAMES[roomfile_arr[roomfile_arr[lay]->connections[boop]]->name]);
 		}
 	}
 
@@ -218,16 +295,88 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 	int ray = 0;
 	for (ray; ray < 7; ray++){
 		char file_name[30];
-		sprintf(file_name,"file%i",ray);
+		sprintf(file_name,"%s",ROOM_NAMES[roomfile_arr[ray]->name]);
 		FILE *file = fopen(file_name,"w");
 		fprintf(file, "ROOM NAME: %s\n", ROOM_NAMES[roomfile_arr[ray]->name]);
 		int rye = 0;
 		for (rye; rye < roomfile_arr[ray]->num_connections; rye++){
-			fprintf(file, "CONNECTION %i: %s\n", rye, ROOM_NAMES[roomfile_arr[roomfile_arr[ray]->connections[rye]]->name]);
+			fprintf(file, "%s %i: %s\n", CON, rye, ROOM_NAMES[roomfile_arr[roomfile_arr[ray]->connections[rye]]->name]);
 		}
 		fprintf(file, "ROOM TYPE: %s\n", roomfile_arr[ray]->room_type);
 
 		fclose(file);
+	}
+
+// int readinto(struct room *theroom, FILE * thefile){
+// 	char st[40];
+// 	while(fgets(st,40,thefile) != NULL){
+// 		if (strstr(st,con)){
+// 			strcpy(room->connections_s[room->number], str+14);
+// 			room->number++;
+
+// 		}
+// 	}
+// }
+	struct room *therooms[7];
+
+	int ye = 0;
+	for (ye; ye < 7; ye++){
+		therooms[ye] = (struct room *)malloc(sizeof(struct room));
+	}
+	int jai = 0;
+	for (jai; jai < 7; jai++){
+		FILE * filly = fopen(ROOM_NAMES[room_indexer->arr[jai]], "r");
+		readinto(therooms[jai], filly);
+	}
+
+	char comp[40];
+	strcpy(comp, "Basement");
+
+	int alai = 0;
+	for (alai; alai < 7; alai++){
+		printf("readinto data %i: name - %s , type %s \n", alai, therooms[alai]->name, therooms[alai]->room_ty);
+		int a = 0;
+		for (a; a < therooms[alai]->number; a++){
+			printf("%s, ", therooms[alai]->connections_s[a]);
+		}
+		printf("\n");
+		int is_p = is_possible_connection(comp, therooms[alai]);
+		printf("got a connect to basement? - %i\n", is_p);
+	}
+	//play the game!!!
+	int moves = 0;
+	displayinfo(therooms[0]);
+	struct room *activeroom = therooms[0];
+	struct path *pathy = (struct path *)malloc(sizeof(struct path));
+	pathy->pathlength = 0;
+	char mo[40];
+	while (pathy->pathlength < 100){
+		fgets(mo, 40, stdin);
+		if (mo[strlen(mo) - 1] == '\n')
+			mo[strlen(mo) - 1] = '\0';
+
+		if (is_possible_connection(mo, activeroom)){
+			int one = 0;
+			for (one; one < 7; one++){
+				if (strcmp(mo, therooms[one]->name)){
+					printf("bat ther nameo waz  %s\n", therooms[one]->name);
+					activeroom = therooms[one];
+					savepath(activeroom, pathy);
+					break;
+				}
+			}
+			displayinfo(activeroom);
+		}
+	}
+	printf("enter NOWNOWNOWERLKJ!!!!!!!\n");
+	char bab[40];
+	strcpy(bab, "eric");
+	char e[40];
+	fgets(e, 40, stdin);
+	if (e[strlen(e) - 1] == '\n')
+		e[strlen(e) - 1] = '\0';
+	if (strcmp(bab, e) == 0){
+		printf("success!!!\n");
 	}
 
 	exit(0);
