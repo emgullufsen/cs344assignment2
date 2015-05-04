@@ -20,7 +20,7 @@ const char *MID = "MID_ROOM";
 const char *END = "END_ROOM";
 
 // room names
-const char *ROOM_NAMES[10] = {"Docha","Oubliette","Interrogation Room","Foyer","Crypt","Rifle Range","Bomb Bay","Basement","Beach Tent", "Wine Cellar"};
+const char *ROOM_NAMES[10] = {"Docha","Oubliette","Library","Foyer","Crypt","Range","Bay","Basement","Tent","Cellar"};
 
 const char *CON = "CONNECTION";
 
@@ -176,10 +176,6 @@ int main(int argc, char *argv[]){
 	
 	old_cwd = getcwd(old_cwd_arr, 100);
 	
-	printf("current working directory is : %s\n", old_cwd);
-	
-	printf("the dir name would be: %s\n", directory_name);
-	
 	// create directory with rwx for user, group, rx for others.
 	int checky0 = mkdir(directory_name, 0777);
 	if (checky0){
@@ -192,8 +188,6 @@ int main(int argc, char *argv[]){
 	}
 	
 	new_cwd = getcwd(new_cwd_arr, 100);
-	printf("new current working directory is : %s\n", new_cwd);
-	printf("that again is, : %s\n", new_cwd_arr);
 	
 	int i = 0;
 	int nummy;
@@ -218,16 +212,6 @@ int main(int argc, char *argv[]){
 				break;
 			}
 		}
-	}
-
-	i = 0;
-	for (i; i < 7; i++){
-		printf("indexer %i is %i - and it's ROOM_NAME member is %s\n", i, room_indexer->arr[i], ROOM_NAMES[room_indexer->arr[i]]);
-	}
-
-	i = 0;
-	for (i; i < 7; i++){
-		printf("roomfile_arr index %i has ROOM_NAMES index %i which is: %s and room_type %s\n",i, roomfile_arr[i]->name, ROOM_NAMES[roomfile_arr[i]->name], roomfile_arr[i]->room_type);
 	}
 
 	/*
@@ -271,23 +255,6 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 
 		}
 	}
-// 	struct roomfile
-// {
-// 	int name; // index in ROOM_NAMES
-// 	int connections[6]; // indices in an index of roomfiles 
-// 	const char *room_type;
-// 	int num_connections;
-// 	int index;
-// };
-	int lay = 0;
-	for (lay; lay < 7; lay++){
-		printf("roomfile_arr[%i]: name - %s, connections - \n", lay, ROOM_NAMES[roomfile_arr[lay]->name]);
-		int loop = roomfile_arr[lay]->num_connections;
-		int boop = 0;
-		for (boop; boop < loop; boop++){
-			printf("%s: %s\n",CON, ROOM_NAMES[roomfile_arr[roomfile_arr[lay]->connections[boop]]->name]);
-		}
-	}
 
 	/* phew, ok so our roomfile_arr array contains all the data
 	we need in order to write our files, so let's write.
@@ -307,16 +274,6 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 		fclose(file);
 	}
 
-// int readinto(struct room *theroom, FILE * thefile){
-// 	char st[40];
-// 	while(fgets(st,40,thefile) != NULL){
-// 		if (strstr(st,con)){
-// 			strcpy(room->connections_s[room->number], str+14);
-// 			room->number++;
-
-// 		}
-// 	}
-// }
 	struct room *therooms[7];
 
 	int ye = 0;
@@ -327,22 +284,9 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 	for (jai; jai < 7; jai++){
 		FILE * filly = fopen(ROOM_NAMES[room_indexer->arr[jai]], "r");
 		readinto(therooms[jai], filly);
+		fclose(filly);
 	}
 
-	char comp[40];
-	strcpy(comp, "Basement");
-
-	int alai = 0;
-	for (alai; alai < 7; alai++){
-		printf("readinto data %i: name - %s , type %s \n", alai, therooms[alai]->name, therooms[alai]->room_ty);
-		int a = 0;
-		for (a; a < therooms[alai]->number; a++){
-			printf("%s, ", therooms[alai]->connections_s[a]);
-		}
-		printf("\n");
-		int is_p = is_possible_connection(comp, therooms[alai]);
-		printf("got a connect to basement? - %i\n", is_p);
-	}
 	//play the game!!!
 	int moves = 0;
 	displayinfo(therooms[0]);
@@ -358,25 +302,22 @@ randomly assigned names from ROOM_NAMES. So effectively, our path is random.
 		if (is_possible_connection(mo, activeroom)){
 			int one = 0;
 			for (one; one < 7; one++){
-				if (strcmp(mo, therooms[one]->name)){
-					printf("bat ther nameo waz  %s\n", therooms[one]->name);
+				if (strcmp(mo, therooms[one]->name) == 0){
 					activeroom = therooms[one];
 					savepath(activeroom, pathy);
 					break;
 				}
 			}
+			if (strcmp(activeroom->room_ty, END) == 0){
+				displayresults(pathy);
+				break;
+			}
 			displayinfo(activeroom);
 		}
-	}
-	printf("enter NOWNOWNOWERLKJ!!!!!!!\n");
-	char bab[40];
-	strcpy(bab, "eric");
-	char e[40];
-	fgets(e, 40, stdin);
-	if (e[strlen(e) - 1] == '\n')
-		e[strlen(e) - 1] = '\0';
-	if (strcmp(bab, e) == 0){
-		printf("success!!!\n");
+		else{
+			printf("\nHUH? I DON'T UNDERSTAND THAT ROOM. TRY AGAIN.\n\n");
+			displayinfo(activeroom);
+		}
 	}
 
 	exit(0);
